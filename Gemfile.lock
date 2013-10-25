@@ -14,6 +14,7 @@ GEM
       multi_json (~> 1.0)
     arel (3.0.2)
     backports (3.3.5)
+    bcrypt-ruby (3.1.2)
     bond (0.4.3)
     builder (3.0.4)
     coderay (1.0.9)
@@ -82,6 +83,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord (~> 3.2)
+  bcrypt-ruby
   pry
   rake
   rspec

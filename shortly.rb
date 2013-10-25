@@ -5,11 +5,16 @@ require 'digest/sha1'
 require 'pry'
 require 'uri'
 require 'open-uri'
+require 'bcrypt-ruby'
 # require 'nokogiri'
 
 ###########################################################
 # Configuration
 ###########################################################
+
+enable :sessions
+
+userTable = {};
 
 set :public_folder, File.dirname(__FILE__) + '/public'
 
@@ -51,6 +56,9 @@ class Click < ActiveRecord::Base
     belongs_to :link, counter_cache: :visits
 end
 
+class User < ActiveRecord::Base
+
+end
 ###########################################################
 # Routes
 ###########################################################
@@ -68,6 +76,34 @@ get '/links' do
     links.map { |link|
         link.as_json.merge(base_url: request.base_url)
     }.to_json
+end
+
+get '/signup' do
+    erb :signup
+end
+
+get '/login' do
+    erb :login
+end
+
+post '/login' do
+    if userTable.has_key?(params[:username])
+        user = userTable[params[:username]]
+        if user[:passwordhash] == BCrypt::Engine.hash_secret(params[:password], user[:salt])
+            redirect "/" if session[:username] = params[:username]
+        end
+    end
+end
+
+post '/signup' do
+    password_salt = BCrypt::Engine.generate_salt
+    password_hash = BCrypt::Engine.hash_secret(params[:password], password_salt)
+    userTable[params[:username]] = {
+        :salt => password_salt,
+        :passwordhash => password_hash
+    }
+
+    redirect "/" if session[:username] = params[:username]
 end
 
 post '/links' do
